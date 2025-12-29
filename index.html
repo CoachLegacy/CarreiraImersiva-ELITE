@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carreira Imersiva - Elite v1.0</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary: #eab308; --bg: #0f172a; --card: #1e293b; --text-main: #f8fafc; --text-muted: #94a3b8; --border: #334155; --accent: #fbbf24; --input-bg: #0f172a; }
+        * { box-sizing: border-box; transition: all 0.2s ease; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg); color: var(--text-main); margin: 0; padding: 20px; display: flex; justify-content: center; }
+        .container { width: 100%; max-width: 900px; background: var(--card); padding: 40px; border-radius: 24px; border: 1px solid var(--border); box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); }
+        header { text-align: center; margin-bottom: 40px; }
+        h1 { font-size: 2rem; font-weight: 800; margin: 0; background: linear-gradient(to right, #f59e0b, #ef4444); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .subtitle { color: var(--text-muted); font-size: 0.9rem; margin-top: 8px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
+        
+        .compat-notice { background: rgba(239, 68, 68, 0.1); border: 1px solid #ef4444; color: #fca5a5; padding: 15px; border-radius: 12px; font-size: 0.85rem; text-align: center; margin-bottom: 30px; line-height: 1.5; }
+
+        section { background: rgba(15, 23, 42, 0.5); padding: 25px; border-radius: 16px; margin-bottom: 25px; border: 1px solid var(--border); }
+        h2 { font-size: 1rem; color: var(--accent); margin-top: 0; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; text-transform: uppercase; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        @media (max-width: 600px) { .grid-2 { grid-template-columns: 1fr; } }
+        .form-group { margin-bottom: 18px; }
+        label { display: block; font-weight: 600; font-size: 0.85rem; margin-bottom: 4px; color: var(--text-main); }
+        .hint { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 12px; display: block; line-height: 1.4; border-left: 2px solid var(--primary); padding-left: 10px; }
+        
+        input, select, textarea { width: 100%; padding: 12px 16px; border: 1.5px solid var(--border); border-radius: 10px; font-size: 0.95rem; background: var(--input-bg); color: #fff; outline: none; }
+        input:focus, select:focus, textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(234, 179, 8, 0.1); }
+        textarea { min-height: 60px; resize: none; overflow: hidden; line-height: 1.5; }
+        .extra-input { display: none; margin-top: 12px; border-style: dashed; border-color: var(--accent); }
+        
+        .btn-generate { width: 100%; background: var(--primary); color: #000; padding: 20px; border: none; border-radius: 14px; font-weight: 800; font-size: 1.1rem; cursor: pointer; margin-top: 20px; text-transform: uppercase; }
+        .btn-copy { width: 100%; background: #334155; color: white; padding: 12px; border: none; border-radius: 10px; margin-top: 10px; cursor: pointer; font-weight: 600; display: none; }
+        #outputContainer { margin-top: 40px; display: none; }
+        #finalPrompt { width: 100%; min-height: 600px; background: #000; color: #fbbf24; font-family: 'Consolas', monospace; font-size: 0.85rem; padding: 20px; border-radius: 12px; border: 1px solid var(--border); white-space: pre-wrap; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <header>
+        <h1>CARREIRA IMERSIVA - ELITE</h1>
+        <div class="subtitle">Engine de Simulação v1.0 (PRO Edition)</div>
+    </header>
+
+    <div class="compat-notice">
+        ⚠️ <b>AVISO DE COMPATIBILIDADE:</b> Este configurador foi projetado para funcionar em <b>Navegadores</b> (Chrome, Safari, Edge) ou <b>Leitores de HTML de terceiros</b>. Ele <u>não funciona</u> corretamente no leitor de HTML nativo de alguns celulares.
+    </div>
+
+    <form id="setupForm">
+        <section>
+            <h2>👤 Perfil do Técnico</h2>
+            <span class="hint">Defina a identidade do treinador. Isso altera a paciência inicial da diretoria.</span>
+            <div class="grid-2">
+                <div class="form-group">
+                    <label>Nome</label>
+                    <input type="text" id="tecNome" placeholder="Ex: Abel Ferreira">
+                </div>
+                <div class="form-group">
+                    <label>Perfil</label>
+                    <select id="tecPerfil" onchange="checkOther(this, 'tecPerfilOutro')">
+                        <option value="Novato">Novato (Baixa reputação)</option>
+                        <option value="Jovem Promissor">Jovem Promissor (Evolução)</option>
+                        <option value="Experiente">Experiente (Respeito/Cobrança)</option>
+                        <option value="outros">Outro / Personalizar...</option>
+                    </select>
+                </div>
+            </div>
+            <textarea id="tecPerfilOutro" class="extra-input" placeholder="Descreva o perfil personalizado..."></textarea>
+            <div class="form-group">
+                <label>História prévia</label>
+                <textarea id="tecHist" placeholder="Ex: Ídolo do clube em busca do primeiro título como técnico..."></textarea>
+            </div>
+        </section>
+
+        <section>
+            <h2>🏟️ Dados do Clube</h2>
+            <span class="hint">Configure o estado atual da instituição e as expectativas da temporada.</span>
+            <div class="grid-2">
+                <div class="form-group">
+                    <label>Nome do Clube</label>
+                    <input type="text" id="clubeNome" placeholder="Ex: Flamengo">
+                </div>
+                <div class="form-group">
+                    <label>Momento atual</label>
+                    <select id="clubeMomento" onchange="checkOther(this, 'clubeMomentoOutro')">
+                        <option value="Crise Financeira">Crise Financeira</option>
+                        <option value="Reconstrução">Reconstrução</option>
+                        <option value="Briga por Títulos">Briga por Títulos</option>
+                        <option value="Instabilidade Política">Instabilidade Política</option>
+                        <option value="outros">Outro...</option>
+                    </select>
+                </div>
+            </div>
+            <textarea id="clubeMomentoOutro" class="extra-input" placeholder="Detalhes do momento do clube..."></textarea>
+            <div class="form-group">
+                <label>Elenco Inicial</label>
+                <span class="hint">Cite os principais jogadores ou carências do time.</span>
+                <textarea id="clubeEle" placeholder="Ex: Gerson, Arrascaeta, Pedro. Falta reserva na lateral..."></textarea>
+            </div>
+            <div class="form-group">
+                <label>Resumo do momento</label>
+                <span class="hint">Pressão externa, jejum de títulos ou clima de bastidores.</span>
+                <textarea id="clubeRes" placeholder="Ex: Torcida impaciente após derrota no clássico..."></textarea>
+            </div>
+            <div class="form-group">
+                <label>Competições</label>
+                <span class="hint">Liste os torneios que disputará no ano.</span>
+                <textarea id="clubeComp" placeholder="Ex: Libertadores, Brasileirão, Copa do Brasil..."></textarea>
+            </div>
+        </section>
+
+        <section>
+            <h2>⚙️ Sistema & Narrativa</h2>
+            <span class="hint">Ajuste como a IA deve conduzir a história e a dificuldade das crises.</span>
+            <div class="grid-2">
+                <div class="form-group">
+                    <label>Personagens-chave</label>
+                    <select id="sisPers">
+                        <option value="Manual">Manual</option>
+                        <option value="Automático" selected>Automático (IA cria nomes)</option>
+                        <option value="Reais">Figuras Reais</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Estilo Narrativo</label>
+                    <select id="sisNarr">
+                        <option value="Realista Jornalística">Realista Jornalística</option>
+                        <option value="Narrativa Intensa">Narrativa Intensa (Dramático)</option>
+                        <option value="Equilibrada">Equilibrada</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Dificuldade</label>
+                <span class="hint">Afeta a velocidade de ultimatos e demissões.</span>
+                <select id="sisDif">
+                    <option value="Fácil">Fácil</option>
+                    <option value="Normal" selected>Normal</option>
+                    <option value="Difícil">Difícil</option>
+                    <option value="Extremo">Extremo</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Resumo Personagens (Opcional)</label>
+                <textarea id="sisRes" placeholder="Ex: Presidente João (Rígido), Diretor Marcos (Aliado)..."></textarea>
+            </div>
+        </section>
+
+        <section>
+            <h2>🛠️ Configs Avançadas & Extras (Opcional)</h2>
+            <span class="hint">Detalhes adicionais para aumentar a profundidade da simulação.</span>
+            <div class="grid-2">
+                <div class="form-group">
+                    <label>Contrato do Técnico</label>
+                    <input type="text" id="cfgContrato" placeholder="Ex: 2 anos, multa de 10M">
+                </div>
+                <div class="form-group">
+                    <label>Situação Financeira</label>
+                    <input type="text" id="cfgFin" placeholder="Ex: 50M para contratações">
+                </div>
+                <div class="form-group">
+                    <label>Expectativa Torcida</label>
+                    <input type="text" id="cfgExpTor" placeholder="Ex: Vencer o estadual obrigatoriamente">
+                </div>
+                <div class="form-group">
+                    <label>Relacionamento Torcida</label>
+                    <input type="text" id="cfgRelTor" placeholder="Ex: Idolatrado / Contestato">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Histórico do Clube (Títulos/Jejum)</label>
+                <textarea id="cfgHistClube" placeholder="Ex: 10 anos sem títulos importantes..."></textarea>
+            </div>
+            <div class="form-group">
+                <label>Rivalidades (Clima)</label>
+                <textarea id="cfgRivais" placeholder="Ex: Rival A (Ódio mortal), Rival B (Clássico equilibrado)..."></textarea>
+            </div>
+        </section>
+
+        <section style="border: 2px solid var(--accent);">
+            <h2>📅 Atualização de Carreira (Opcional)</h2>
+            <span class="hint">⚠️ Use se já tiver um save ativo para carregar o histórico.</span>
+            <div class="grid-2">
+                <div class="form-group">
+                    <label>Temporada</label>
+                    <input type="text" id="atTemp" placeholder="Ex: 2026 (Segunda Temporada)">
+                </div>
+                <div class="form-group">
+                    <label>Resultados/Títulos</label>
+                    <textarea id="atRes" placeholder="Resuma o que conquistou ou onde foi eliminado nas temporadas anteriores..."></textarea>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Decisões/Promessas/Crises</label>
+                <textarea id="atDec" placeholder="Memórias importantes: Venda de ídolos, brigas no elenco ou promessas de títulos..."></textarea>
+            </div>
+        </section>
+
+        <section>
+            <h2>🌡️ Climas Iniciais (Opcional)</h2>
+            <span class="hint"><b>Estados:</b> Empolgado • Confiante • Neutro • Desconfiado • Pressionado • Hostil/Crise</span>
+            <div class="grid-2">
+                <div class="form-group"><label>Diretoria</label><input type="text" id="cliDir" placeholder="Ex: Confiante"></div>
+                <div class="form-group"><label>Torcida Organizada</label><input type="text" id="cliTor" placeholder="Ex: Neutra"></div>
+                <div class="form-group"><label>Imprensa</label><input type="text" id="cliImp" placeholder="Ex: Hostil"></div>
+                <div class="form-group"><label>Elenco</label><input type="text" id="cliEle" placeholder="Ex: Rachado / Unido"></div>
+            </div>
+        </section>
+
+        <button type="button" id="btnGenerate" class="btn-generate">GERAR PROMPT ELITE V1.0</button>
+        <button type="button" id="btnCopy" class="btn-copy">COPIAR TEXTO GERADO</button>
+    </form>
+    <div id="outputContainer"><textarea id="finalPrompt" readonly></textarea></div>
+</div>
+
+<script>
+    function autoExpand(field) { field.style.height = 'inherit'; field.style.height = field.scrollHeight + 'px'; }
+    document.addEventListener('input', e => { if (e.target.tagName === 'TEXTAREA') autoExpand(e.target); });
+    function checkOther(select, inputId) { const input = document.getElementById(inputId); input.style.display = select.value === 'outros' ? 'block' : 'none'; }
+
+    document.getElementById('btnGenerate').addEventListener('click', () => {
+        const v = (id) => document.getElementById(id).value || "";
+        const s = (id, outId) => { const el = document.getElementById(id); return el.value === 'outros' ? v(outId) : el.value; };
+
+        const finalContent = `🎮 PROMPT — CARREIRA IMERSIVA - ELITE (v1.0)
+
+Você será um Simulador Narrativo de Modo Carreira para FIFA / EA FC / PES / Etc.
+Seu papel é criar uma experiência realista, dinâmica e contínua, reagindo às decisões e resultados do técnico como se o clube estivesse inserido em um universo vivo do futebol, com diretoria, torcida, imprensa e elenco reagindo de forma coerente.
+Antes de iniciar a carreira, você deve coletar informações para montar corretamente o contexto da simulação.
+
+[CONFIGURAÇÃO DA CARREIRA]
+(Tudo aqui deve ser preenchido pelo usuário. Se todas as seções estiverem em branco, não iniciar.)
+
+[Técnico]
+Nome: ${v('tecNome')}
+Perfil: ${s('tecPerfil', 'tecPerfilOutro')}
+História prévia: ${v('tecHist')}
+📌 Explicação de Impacto:
+- Novato → baixa reputação, pouca paciência da diretoria/torcida.
+- Jovem promissor → expectativa de evolução, margem de erro média.
+- Experiente → respeito inicial, cobrança intensa.
+- Outro → livre preenchimento.
+
+[Clube]
+Nome: ${v('clubeNome')}
+Momento atual: ${s('clubeMomento', 'clubeMomentoOutro')}
+Elenco: ${v('clubeEle')}
+Resumo do momento: ${v('clubeRes')}
+📌 Explicação de Impacto:
+- Crise → paciência maior, cobrança menor.
+- Reconstrução → expectativa de médio prazo.
+- Briga por títulos → cobrança máxima.
+- Instabilidade política → risco de crises inesperadas.
+- Outro → livre preenchimento.
+
+[Competições da temporada]
+Lista: ${v('clubeComp')}
+📌 Explicação de Impacto:
+- Continental → pressão máxima.
+- Nacional → cobrança moderada.
+- Outros → relevância menor.
+
+[Personagens-chave]
+Escolha: ${v('sisPers')}
+Resumo: ${v('sisRes')}
+📌 Explicação: Personagens têm memória e influenciam crises e demissões.
+
+[Estilo da narrativa]
+Escolha: ${v('sisNarr')}
+📌 Explicação: Define se o tom é jornalístico/frio ou dramático/intenso.
+
+[Dificuldade]
+Escolha: ${v('sisDif')}
+📌 Explicação: Controla a velocidade das crises e ultimatos.
+
+[Configs avançadas — opcional]
+Contrato do técnico: ${v('cfgContrato')}
+Clima inicial do elenco: ${v('cliEle')}
+Expectativas da torcida: ${v('cfgExpTor')}
+
+[Extras opcionais]
+Jogadores-chave: ${v('clubeEle')}
+Situação financeira inicial: ${v('cfgFin')}
+Relação inicial com a diretoria: ${v('cliDir')}
+Relacionamento com a torcida: ${v('cfgRelTor')}
+Histórico do clube: ${v('cfgHistClube')}
+Rivalidades: ${v('cfgRivais')}
+
+[Atualização de carreira — opcional]
+(Preencha apenas se a carreira já estiver em andamento)
+Temporada: ${v('atTemp')}
+Resultados até agora: ${v('atRes')}
+Decisões importantes já tomadas: ${v('atDec')}
+
+[Climas iniciais — opcionais]
+Diretoria: ${v('cliDir')}
+Torcida organizada: ${v('cliTor')}
+Imprensa: ${v('cliImp')}
+Elenco: ${v('cliEle')}
+
+⚠️ Regra: A simulação só não deve iniciar se TODAS as configurações estiverem em branco. 
+Se houver pelo menos uma seção preenchida (Configuração da Carreira ou Atualização de Carreira), 
+salvar na memória e iniciar após confirmação.
+---
+
+[INSTRUÇÕES DA SIMULAÇÃO]
+
+🧾 Funcionamento da Carreira  
+- O perfil do técnico define a paciência inicial.  
+- O momento do clube e as competições determinam a pressão.  
+- Personagens guardam memória e o universo reage a decisões e resultados.  
+
+⚠️ A simulação só começa após a confirmação.  
+Após confirmar:  
+- Se carreira nova → simular a primeira semana no clube e realizar coletiva inicial (4 perguntas, uma por vez).  
+- Se carreira já iniciada → simular a próxima semana com base nos resultados e clima atual.  
+
+---
+
+🟡 Clima do Clube  
+Simular continuamente: Diretoria, Torcida, Torcida organizada, Imprensa e Elenco.  
+Estados possíveis: **Empolgado • Confiante • Neutro • Desconfiado • Pressionado • Hostil/Crise**.  
+
+---
+
+📜 Histórico da Carreira  
+Registrar continuamente: decisões, títulos, eliminações, crises e alianças.  
+⚠️ O passado influencia o presente, o universo não é resetado.  
+
+---
+
+🟠 Personagens Dinâmicos  
+Presidente, dirigentes, auxiliar técnico, jogadores, jornalistas, comentaristas e torcidas surgem naturalmente e reagem com base no histórico e clima atual.  
+
+---
+
+🧨 Eventos de Bastidores  
+Introduzir organicamente: tensão salarial, insatisfação, pressão política ou falas mal interpretadas.  
+
+---
+
+🔴 Consequências  
+O ambiente evolui continuamente.  
+Se hostil → gera ultimatos e demissão.  
+⚠️ Não evitar consequências reais para preservar a narrativa.  
+
+---
+
+🟥 Sistema de Demissão  
+1. Alerta/Rumores  
+2. Ultimato (Metas curtas)  
+3. Reunião final  
+4. Decisão/Repercussão  
+
+---
+
+⚽ Diretrizes Gerais  
+- Linguagem de futebol brasileiro.  
+- Realismo como base.  
+- Não mencionar “etapas” na fala.  
+- Salvar todas as informações configuradas na memória.  
+- Sempre buscar coerência com o clube e contexto.  
+
+---
+
+📰 Diretriz de Repercussão  
+Sempre gerar:  
+- Manchetes da imprensa  
+- Comentários de jornalistas/ex-jogadores  
+- Reações da torcida nas redes  
+- Bastidores do elenco/diretoria  
+
+Tudo pronto? Salve na MEMÓRIA.  
+⚠️ A partir deste ponto, todas as informações devem ser lembradas e usadas para manter a continuidade da carreira.`;
+
+        const fp = document.getElementById('finalPrompt');
+        fp.value = finalContent;
+        document.getElementById('outputContainer').style.display = 'block';
+        document.getElementById('btnCopy').style.display = 'block';
+        autoExpand(fp);
+        window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+    });
+
+        document.getElementById('btnCopy').addEventListener('click', () => {
+        const fp = document.getElementById('finalPrompt');
+        fp.select();
+        document.execCommand('copy');
+        alert('Prompt ELITE v1.0 Copiado! Agora, envie o texto copiado para a sua IA (ChatGPT, Gemini, Claude) para iniciar a sua carreira.');
+    });
+</script>
+</body>
+</html>
+
