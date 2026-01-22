@@ -2,234 +2,406 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Carreira Imersiva - Elite v1.0</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Carreira Imersiva - Elite v2.0</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
-        :root { --primary: #eab308; --bg: #0f172a; --card: #1e293b; --text-main: #f8fafc; --text-muted: #94a3b8; --border: #334155; --accent: #fbbf24; --input-bg: #0f172a; }
-        * { box-sizing: border-box; transition: all 0.2s ease; }
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg); color: var(--text-main); margin: 0; padding: 20px; display: flex; justify-content: center; }
-        .container { width: 100%; max-width: 900px; background: var(--card); padding: 40px; border-radius: 24px; border: 1px solid var(--border); box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); }
-        header { text-align: center; margin-bottom: 40px; }
-        h1 { font-size: 2rem; font-weight: 800; margin: 0; background: linear-gradient(to right, #f59e0b, #ef4444); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .subtitle { color: var(--text-muted); font-size: 0.9rem; margin-top: 8px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
+        :root { 
+            --primary: #eab308; --bg: #0f172a; --card: #1e293b; --text-main: #f8fafc; 
+            --text-muted: #94a3b8; --border: #334155; --accent: #fbbf24; --input-bg: #0f172a;
+            --success: #22c55e; --danger: #ef4444;
+        }
+        .light-mode {
+            --bg: #f1f5f9; --card: #ffffff; --text-main: #1e293b; 
+            --text-muted: #64748b; --border: #e2e8f0; --input-bg: #f8fafc;
+        }
+        * { box-sizing: border-box; transition: background 0.2s, color 0.2s; }
         
-        .compat-notice { background: rgba(239, 68, 68, 0.1); border: 1px solid #ef4444; color: #fca5a5; padding: 15px; border-radius: 12px; font-size: 0.85rem; text-align: center; margin-bottom: 30px; line-height: 1.5; }
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background-color: var(--bg); color: var(--text-main); 
+            margin: 0; padding: 0; display: flex; justify-content: center;
+            min-height: 100vh;
+        }
+        
+        .main-wrapper { 
+            display: grid; grid-template-columns: 1fr 350px; gap: 25px; 
+            width: 100%; max-width: 1200px; padding: 30px;
+        }
 
-        section { background: rgba(15, 23, 42, 0.5); padding: 25px; border-radius: 16px; margin-bottom: 25px; border: 1px solid var(--border); }
-        h2 { font-size: 1rem; color: var(--accent); margin-top: 0; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; text-transform: uppercase; }
-        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        @media (max-width: 1000px) { 
+            .main-wrapper { grid-template-columns: 1fr; padding: 15px; }
+            .sidebar { position: relative !important; top: 0 !important; height: auto !important; order: -1; margin-bottom: 20px;}
+            .theme-toggle { top: 10px !important; right: 10px !important; }
+        }
+
+        .container { 
+            background: var(--card); padding: 25px; border-radius: 24px; 
+            border: 1px solid var(--border); box-shadow: 0 10px 30px rgba(0,0,0,0.2); 
+            height: fit-content;
+        }
+
+        .theme-toggle { 
+            position: fixed; top: 20px; right: 20px; cursor: pointer; 
+            background: var(--card); border: 1px solid var(--border); 
+            width: 45px; height: 45px; border-radius: 50%; 
+            display: flex; align-items: center; justify-content: center; z-index: 100; 
+        }
+
+        .steps-nav { display: flex; gap: 8px; margin-bottom: 25px; }
+        .step-dot { flex: 1; height: 6px; background: var(--border); border-radius: 10px; cursor: pointer; }
+        .step-dot.active { background: var(--primary); box-shadow: 0 0 10px var(--primary); }
+
+        header { margin-bottom: 25px; }
+        h1 { font-size: 1.6rem; font-weight: 800; margin: 0; background: linear-gradient(to right, #f59e0b, #ef4444); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        
+        .sidebar { 
+            background: var(--card); border: 2px solid var(--primary); 
+            border-radius: 24px; padding: 20px; position: sticky; 
+            top: 30px; height: calc(100vh - 60px); overflow-y: auto; 
+        }
+        .preview-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid var(--border); padding-bottom: 5px; }
+        .preview-title { font-size: 0.9rem; font-weight: 800; text-transform: uppercase; color: var(--primary); }
+        .btn-reset { background: none; border: 1px solid var(--danger); color: var(--danger); font-size: 0.65rem; padding: 4px 8px; border-radius: 6px; cursor: pointer; font-weight: 800; }
+        .btn-reset:hover { background: var(--danger); color: white; }
+
+        .preview-item { margin-bottom: 12px; font-size: 0.8rem; border-bottom: 1px solid rgba(148, 163, 184, 0.1); padding-bottom: 8px; }
+        .preview-label { color: var(--text-muted); font-weight: 600; display: block; font-size: 0.65rem; text-transform: uppercase; margin-bottom: 2px;}
+        .preview-content { color: var(--text-main); white-space: pre-wrap; line-height: 1.3; font-weight: 500; }
+
+        .step-content { display: none; animation: fadeIn 0.4s ease; }
+        .step-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         @media (max-width: 600px) { .grid-2 { grid-template-columns: 1fr; } }
-        .form-group { margin-bottom: 18px; }
-        label { display: block; font-weight: 600; font-size: 0.85rem; margin-bottom: 4px; color: var(--text-main); }
-        .hint { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 12px; display: block; line-height: 1.4; border-left: 2px solid var(--primary); padding-left: 10px; }
         
-        input, select, textarea { width: 100%; padding: 12px 16px; border: 1.5px solid var(--border); border-radius: 10px; font-size: 0.95rem; background: var(--input-bg); color: #fff; outline: none; }
-        input:focus, select:focus, textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(234, 179, 8, 0.1); }
-        textarea { min-height: 60px; resize: none; overflow: hidden; line-height: 1.5; }
-        .extra-input { display: none; margin-top: 12px; border-style: dashed; border-color: var(--accent); }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; font-weight: 700; font-size: 0.85rem; margin-bottom: 6px; color: var(--primary); }
         
-        .btn-generate { width: 100%; background: var(--primary); color: #000; padding: 20px; border: none; border-radius: 14px; font-weight: 800; font-size: 1.1rem; cursor: pointer; margin-top: 20px; text-transform: uppercase; }
-        .btn-copy { width: 100%; background: #334155; color: white; padding: 12px; border: none; border-radius: 10px; margin-top: 10px; cursor: pointer; font-weight: 600; display: none; }
-        #outputContainer { margin-top: 40px; display: none; }
-        #finalPrompt { width: 100%; min-height: 600px; background: #000; color: #fbbf24; font-family: 'Consolas', monospace; font-size: 0.85rem; padding: 20px; border-radius: 12px; border: 1px solid var(--border); white-space: pre-wrap; }
+        input, select, textarea { 
+            width: 100%; padding: 14px; border: 1.5px solid var(--border); 
+            border-radius: 12px; background: var(--input-bg); 
+            color: var(--text-main); font-size: 16px; 
+        }
+        .hint { font-size: 0.7rem; color: var(--text-muted); margin-bottom: 8px; display: block; font-style: italic; }
+        
+        .nav-btns { display: flex; gap: 12px; margin-top: 25px; }
+        .btn { padding: 16px; border-radius: 12px; font-weight: 700; cursor: pointer; border: none; flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 0.95rem; }
+        .btn-next { background: var(--primary); color: #000; }
+        .btn-prev { background: transparent; border: 1px solid var(--border); color: var(--text-main); }
+
+        #finalPrompt { width: 100%; height: 350px; background: #000; color: #fbbf24; font-family: monospace; font-size: 0.75rem; padding: 15px; margin-top: 15px; border-radius: 12px; overflow-y: auto; white-space: pre-wrap; }
+        .switch-group { display: flex; align-items: center; gap: 12px; background: rgba(234, 179, 8, 0.1); padding: 15px; border-radius: 12px; border: 1px dashed var(--primary); margin-bottom: 20px; }
+        
+        .switch { position: relative; width: 44px; height: 22px; flex-shrink: 0; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #334155; transition: .4s; border-radius: 34px; }
+        .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: var(--success); }
+        input:checked + .slider:before { transform: translateX(22px); }
+        
+        .opt-label { color: #94a3b8; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin: 15px 0 8px 0; display: block; border-left: 3px solid var(--primary); padding-left: 8px; }
     </style>
 </head>
 <body>
-<div class="container">
-    <header>
-        <h1>CARREIRA IMERSIVA - ELITE</h1>
-        <div class="subtitle">Engine de Simulação v1.0 (PRO Edition)</div>
-    </header>
 
-    <div class="compat-notice">
-        ⚠️ <b>AVISO DE COMPATIBILIDADE:</b> Este configurador foi projetado para funcionar em <b>Navegadores</b> (Chrome, Safari, Edge) ou <b>Leitores de HTML de terceiros</b>. Ele <u>não funciona</u> corretamente no leitor de HTML nativo de alguns celulares.
+<button class="theme-toggle" onclick="toggleTheme()">🌓</button>
+
+<div class="main-wrapper">
+    <div class="container">
+        <header>
+            <h1>ELITE V2.0 CONFIG</h1>
+        </header>
+
+        <div class="steps-nav" id="stepsNav">
+            <div class="step-dot active" onclick="goToStep(0)"></div>
+            <div class="step-dot" onclick="goToStep(1)"></div>
+            <div class="step-dot" onclick="goToStep(2)"></div>
+            <div class="step-dot" onclick="goToStep(3)"></div>
+            <div class="step-dot" onclick="goToStep(4)"></div>
+            <div class="step-dot" onclick="goToStep(5)"></div>
+        </div>
+
+        <form id="setupForm">
+            <div class="step-content active">
+                <h2 style="color: var(--primary)">👤 Técnico</h2>
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label>Nome</label>
+                        <input type="text" id="tecNome" placeholder="Ex: Rogério Ceni" oninput="saveAndRefresh()">
+                    </div>
+                    <div class="form-group">
+                        <label>Perfil</label>
+                        <select id="tecPerfil" onchange="checkOther(this, 'tecPerfilOutro'); saveAndRefresh();">
+                            <option value="Novato">Novato</option>
+                            <option value="Jovem Promissor">Jovem Promissor</option>
+                            <option value="Experiente">Experiente</option>
+                            <option value="outros">Outro...</option>
+                        </select>
+                    </div>
+                </div>
+                <input type="text" id="tecPerfilOutro" style="display:none; margin-bottom:15px" placeholder="Qual o perfil?" oninput="saveAndRefresh()">
+                <div class="form-group">
+                    <label>História prévia</label>
+                    <textarea id="tecHist" rows="3" placeholder="Trajetória, clubes passados..." oninput="saveAndRefresh()"></textarea>
+                </div>
+            </div>
+
+            <div class="step-content">
+                <h2 style="color: var(--primary)">🏟️ Clube</h2>
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label>Nome do Clube</label>
+                        <input type="text" id="clubeNome" placeholder="Ex: Flamengo" oninput="saveAndRefresh()">
+                    </div>
+                    <div class="form-group">
+                        <label>Momento Atual</label>
+                        <select id="clubeMomento" onchange="checkOther(this, 'clubeMomentoOutro'); saveAndRefresh();">
+                            <option value="Crise Financeira">Crise Financeira</option>
+                            <option value="Reconstrução">Reconstrução</option>
+                            <option value="Briga por Títulos">Briga por Títulos</option>
+                            <option value="Instabilidade Política">Instabilidade Política</option>
+                            <option value="outros">Outro...</option>
+                        </select>
+                    </div>
+                </div>
+                <input type="text" id="clubeMomentoOutro" style="display:none; margin-bottom:15px" placeholder="Descreva o momento..." oninput="saveAndRefresh()">
+                <div class="form-group">
+                    <label>Elenco e Resumo</label>
+                    <textarea id="clubeEle" rows="2" placeholder="Principais nomes e situação..." oninput="saveAndRefresh()"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Competições</label>
+                    <input type="text" id="clubeComp" placeholder="Libertadores, Brasileirão..." oninput="saveAndRefresh()">
+                </div>
+            </div>
+
+            <div class="step-content">
+                <h2 style="color: var(--primary)">⚙️ Sistema</h2>
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label>Personagens</label>
+                        <select id="sisPers" onchange="togglePersRes(this); saveAndRefresh();">
+                            <option value="Automático">Automático</option>
+                            <option value="Manual">Manual</option>
+                            <option value="Reais">Reais</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Narrativa</label>
+                        <select id="sisNarr" oninput="saveAndRefresh()">
+                            <option value="Realista Jornalística">Jornalística</option>
+                            <option value="Narrativa Intensa">Intensa</option>
+                            <option value="Equilibrada">Equilibrada</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="sisResContainer" style="display:none;" class="form-group">
+                    <textarea id="sisRes" placeholder="Ex: Presidente João (Rígido)..." oninput="saveAndRefresh()"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Dificuldade</label>
+                    <select id="sisDif" oninput="saveAndRefresh()">
+                        <option value="Fácil">Fácil</option>
+                        <option value="Normal" selected>Normal</option>
+                        <option value="Difícil">Difícil</option>
+                        <option value="Extremo">Extremo</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="step-content">
+                <h2 style="color: var(--accent)">🛠️ Opcionais Avançados</h2>
+                <div class="grid-2">
+                    <input type="text" id="optContrato" placeholder="Contrato" oninput="saveAndRefresh()">
+                    <input type="text" id="optClimaEle" placeholder="Clima inicial" oninput="saveAndRefresh()">
+                </div>
+                <div class="grid-2" style="margin-top:10px">
+                    <input type="text" id="optTorcida" placeholder="Relacionamento Torcida" oninput="saveAndRefresh()">
+                    <input type="text" id="optFin" placeholder="Situação Financeira" oninput="saveAndRefresh()">
+                </div>
+                <textarea id="optHistClube" placeholder="Histórico do clube (Títulos, Jejum...)" style="margin-top:10px" oninput="saveAndRefresh()"></textarea>
+                <input type="text" id="optRivais" placeholder="Rivais (Nome + Clima)" style="margin-top:10px" oninput="saveAndRefresh()">
+            </div>
+
+            <div class="step-content">
+                <h2 style="color: var(--accent)">📅 Atualização de Carreira</h2>
+                <div class="switch-group">
+                    <label class="switch">
+                        <input type="checkbox" id="saveActive" onchange="saveAndRefresh()">
+                        <span class="slider"></span>
+                    </label>
+                    <span>ATIVAR SAVE EM ANDAMENTO</span>
+                </div>
+                <div class="grid-2">
+                    <input type="text" id="atTemp" placeholder="Temporada" oninput="saveAndRefresh()">
+                    <input type="text" id="atResultados" placeholder="Resultados/Títulos" oninput="saveAndRefresh()">
+                </div>
+                <textarea id="atCrises" placeholder="Crises ou promessas ativas..." style="margin-top:10px" oninput="saveAndRefresh()"></textarea>
+                <div class="grid-2" style="margin-top:10px">
+                    <input type="text" id="cliDir" placeholder="Clima Diretoria" oninput="saveAndRefresh()">
+                    <input type="text" id="cliTor" placeholder="Clima Torcida" oninput="saveAndRefresh()">
+                </div>
+            </div>
+
+            <div class="step-content">
+                <h2 style="color: var(--primary)">🚀 Gerar Prompt Elite</h2>
+                <button type="button" id="btnGenerate" class="btn btn-next" style="width: 100%">GERAR ENGINE COMPLETA</button>
+                <div id="outputContainer" style="display:none">
+                    <textarea id="finalPrompt" readonly></textarea>
+                    <button type="button" id="btnCopy" class="btn" style="background:var(--success); color:white; width:100%; margin-top:10px">📋 COPIAR TUDO</button>
+                </div>
+            </div>
+
+            <div class="nav-btns">
+                <button type="button" class="btn btn-prev" id="prevBtn" onclick="changeStep(-1)" style="visibility: hidden;">Anterior</button>
+                <button type="button" class="btn btn-next" id="nextBtn" onclick="changeStep(1)">Próximo</button>
+            </div>
+        </form>
     </div>
 
-    <form id="setupForm">
-        <section>
-            <h2>👤 Perfil do Técnico</h2>
-            <span class="hint">Defina a identidade do treinador. Isso altera a paciência inicial da diretoria.</span>
-            <div class="grid-2">
-                <div class="form-group">
-                    <label>Nome</label>
-                    <input type="text" id="tecNome" placeholder="Ex: Abel Ferreira">
-                </div>
-                <div class="form-group">
-                    <label>Perfil</label>
-                    <select id="tecPerfil" onchange="checkOther(this, 'tecPerfilOutro')">
-                        <option value="Novato">Novato (Baixa reputação)</option>
-                        <option value="Jovem Promissor">Jovem Promissor (Evolução)</option>
-                        <option value="Experiente">Experiente (Respeito/Cobrança)</option>
-                        <option value="outros">Outro / Personalizar...</option>
-                    </select>
-                </div>
-            </div>
-            <textarea id="tecPerfilOutro" class="extra-input" placeholder="Descreva o perfil personalizado..."></textarea>
-            <div class="form-group">
-                <label>História prévia</label>
-                <textarea id="tecHist" placeholder="Ex: Ídolo do clube em busca do primeiro título como técnico..."></textarea>
-            </div>
-        </section>
-
-        <section>
-            <h2>🏟️ Dados do Clube</h2>
-            <span class="hint">Configure o estado atual da instituição e as expectativas da temporada.</span>
-            <div class="grid-2">
-                <div class="form-group">
-                    <label>Nome do Clube</label>
-                    <input type="text" id="clubeNome" placeholder="Ex: Flamengo">
-                </div>
-                <div class="form-group">
-                    <label>Momento atual</label>
-                    <select id="clubeMomento" onchange="checkOther(this, 'clubeMomentoOutro')">
-                        <option value="Crise Financeira">Crise Financeira</option>
-                        <option value="Reconstrução">Reconstrução</option>
-                        <option value="Briga por Títulos">Briga por Títulos</option>
-                        <option value="Instabilidade Política">Instabilidade Política</option>
-                        <option value="outros">Outro...</option>
-                    </select>
-                </div>
-            </div>
-            <textarea id="clubeMomentoOutro" class="extra-input" placeholder="Detalhes do momento do clube..."></textarea>
-            <div class="form-group">
-                <label>Elenco Inicial</label>
-                <span class="hint">Cite os principais jogadores ou carências do time.</span>
-                <textarea id="clubeEle" placeholder="Ex: Gerson, Arrascaeta, Pedro. Falta reserva na lateral..."></textarea>
-            </div>
-            <div class="form-group">
-                <label>Resumo do momento</label>
-                <span class="hint">Pressão externa, jejum de títulos ou clima de bastidores.</span>
-                <textarea id="clubeRes" placeholder="Ex: Torcida impaciente após derrota no clássico..."></textarea>
-            </div>
-            <div class="form-group">
-                <label>Competições</label>
-                <span class="hint">Liste os torneios que disputará no ano.</span>
-                <textarea id="clubeComp" placeholder="Ex: Libertadores, Brasileirão, Copa do Brasil..."></textarea>
-            </div>
-        </section>
-
-        <section>
-            <h2>⚙️ Sistema & Narrativa</h2>
-            <span class="hint">Ajuste como a IA deve conduzir a história e a dificuldade das crises.</span>
-            <div class="grid-2">
-                <div class="form-group">
-                    <label>Personagens-chave</label>
-                    <select id="sisPers">
-                        <option value="Manual">Manual</option>
-                        <option value="Automático" selected>Automático (IA cria nomes)</option>
-                        <option value="Reais">Figuras Reais</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Estilo Narrativo</label>
-                    <select id="sisNarr">
-                        <option value="Realista Jornalística">Realista Jornalística</option>
-                        <option value="Narrativa Intensa">Narrativa Intensa (Dramático)</option>
-                        <option value="Equilibrada">Equilibrada</option>
-                    </select>
-                </div>
-            </div>
-            <div class="form-group">
-                <label>Dificuldade</label>
-                <span class="hint">Afeta a velocidade de ultimatos e demissões.</span>
-                <select id="sisDif">
-                    <option value="Fácil">Fácil</option>
-                    <option value="Normal" selected>Normal</option>
-                    <option value="Difícil">Difícil</option>
-                    <option value="Extremo">Extremo</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>Resumo Personagens (Opcional)</label>
-                <textarea id="sisRes" placeholder="Ex: Presidente João (Rígido), Diretor Marcos (Aliado)..."></textarea>
-            </div>
-        </section>
-
-        <section>
-            <h2>🛠️ Configs Avançadas & Extras (Opcional)</h2>
-            <span class="hint">Detalhes adicionais para aumentar a profundidade da simulação.</span>
-            <div class="grid-2">
-                <div class="form-group">
-                    <label>Contrato do Técnico</label>
-                    <input type="text" id="cfgContrato" placeholder="Ex: 2 anos, multa de 10M">
-                </div>
-                <div class="form-group">
-                    <label>Situação Financeira</label>
-                    <input type="text" id="cfgFin" placeholder="Ex: 50M para contratações">
-                </div>
-                <div class="form-group">
-                    <label>Expectativa Torcida</label>
-                    <input type="text" id="cfgExpTor" placeholder="Ex: Vencer o estadual obrigatoriamente">
-                </div>
-                <div class="form-group">
-                    <label>Relacionamento Torcida</label>
-                    <input type="text" id="cfgRelTor" placeholder="Ex: Idolatrado / Contestato">
-                </div>
-            </div>
-            <div class="form-group">
-                <label>Histórico do Clube (Títulos/Jejum)</label>
-                <textarea id="cfgHistClube" placeholder="Ex: 10 anos sem títulos importantes..."></textarea>
-            </div>
-            <div class="form-group">
-                <label>Rivalidades (Clima)</label>
-                <textarea id="cfgRivais" placeholder="Ex: Rival A (Ódio mortal), Rival B (Clássico equilibrado)..."></textarea>
-            </div>
-        </section>
-
-        <section style="border: 2px solid var(--accent);">
-            <h2>📅 Atualização de Carreira (Opcional)</h2>
-            <span class="hint">⚠️ Use se já tiver um save ativo para carregar o histórico.</span>
-            <div class="grid-2">
-                <div class="form-group">
-                    <label>Temporada</label>
-                    <input type="text" id="atTemp" placeholder="Ex: 2026 (Segunda Temporada)">
-                </div>
-                <div class="form-group">
-                    <label>Resultados/Títulos</label>
-                    <textarea id="atRes" placeholder="Resuma o que conquistou ou onde foi eliminado nas temporadas anteriores..."></textarea>
-                </div>
-            </div>
-            <div class="form-group">
-                <label>Decisões/Promessas/Crises</label>
-                <textarea id="atDec" placeholder="Memórias importantes: Venda de ídolos, brigas no elenco ou promessas de títulos..."></textarea>
-            </div>
-        </section>
-
-        <section>
-            <h2>🌡️ Climas Iniciais (Opcional)</h2>
-            <span class="hint"><b>Estados:</b> Empolgado • Confiante • Neutro • Desconfiado • Pressionado • Hostil/Crise</span>
-            <div class="grid-2">
-                <div class="form-group"><label>Diretoria</label><input type="text" id="cliDir" placeholder="Ex: Confiante"></div>
-                <div class="form-group"><label>Torcida Organizada</label><input type="text" id="cliTor" placeholder="Ex: Neutra"></div>
-                <div class="form-group"><label>Imprensa</label><input type="text" id="cliImp" placeholder="Ex: Hostil"></div>
-                <div class="form-group"><label>Elenco</label><input type="text" id="cliEle" placeholder="Ex: Rachado / Unido"></div>
-            </div>
-        </section>
-
-        <button type="button" id="btnGenerate" class="btn-generate">GERAR PROMPT ELITE V1.0</button>
-        <button type="button" id="btnCopy" class="btn-copy">COPIAR TEXTO GERADO</button>
-    </form>
-    <div id="outputContainer"><textarea id="finalPrompt" readonly></textarea></div>
+    <aside class="sidebar">
+        <div class="preview-header">
+            <div class="preview-title">Live Preview</div>
+            <button class="btn-reset" onclick="resetCareer()">🔄 RESETAR</button>
+        </div>
+        <div id="previewCard">
+            <div class="preview-item"><span class="preview-label">📋 Técnico</span><div class="preview-content" id="preTec">...</div></div>
+            <div class="preview-item"><span class="preview-label">📖 História</span><div class="preview-content" id="preHist">...</div></div>
+            <div class="preview-item"><span class="preview-label">⚽ Clube</span><div class="preview-content" id="preClube">...</div></div>
+            <div class="preview-item"><span class="preview-label">👥 Elenco</span><div class="preview-content" id="preEle">...</div></div>
+            <div class="preview-item"><span class="preview-label">🏆 Competições</span><div class="preview-content" id="preComp">...</div></div>
+            <div class="preview-item"><span class="preview-label">🛠️ Sistema</span><div class="preview-content" id="preSis">Normal | Jornalística</div></div>
+            <div class="preview-item"><span class="preview-label">✨ Extras</span><div class="preview-content" id="preOpt">...</div></div>
+            <div class="preview-item"><span class="preview-label">💾 Save Game</span><div class="preview-content" id="preSave">Nova Carreira</div></div>
+        </div>
+    </aside>
 </div>
 
 <script>
-    function autoExpand(field) { field.style.height = 'inherit'; field.style.height = field.scrollHeight + 'px'; }
-    document.addEventListener('input', e => { if (e.target.tagName === 'TEXTAREA') autoExpand(e.target); });
-    function checkOther(select, inputId) { const input = document.getElementById(inputId); input.style.display = select.value === 'outros' ? 'block' : 'none'; }
+    let currentStep = 0;
+    const steps = document.querySelectorAll('.step-content');
+    const dots = document.querySelectorAll('.step-dot');
 
-    document.getElementById('btnGenerate').addEventListener('click', () => {
-        const v = (id) => document.getElementById(id).value || "";
-        const s = (id, outId) => { const el = document.getElementById(id); return el.value === 'outros' ? v(outId) : el.value; };
+    // === SISTEMA DE SAVE/RESET ===
 
-        const finalContent = `🎮 PROMPT — CARREIRA IMERSIVA - ELITE (v1.0)
+    function saveAndRefresh() {
+        saveData();
+        updatePreview();
+    }
+
+    function saveData() {
+        const inputs = document.querySelectorAll('input, select, textarea');
+        const data = {};
+        inputs.forEach(input => {
+            if (input.type === 'checkbox') {
+                data[input.id] = input.checked;
+            } else {
+                data[input.id] = input.value;
+            }
+        });
+        localStorage.setItem('eliteSave_v2', JSON.stringify(data));
+    }
+
+    function loadData() {
+        const saved = localStorage.getItem('eliteSave_v2');
+        if (!saved) return;
+        const data = JSON.parse(saved);
+        
+        Object.keys(data).forEach(id => {
+            const input = document.getElementById(id);
+            if (input) {
+                if (input.type === 'checkbox') {
+                    input.checked = data[id];
+                } else {
+                    input.value = data[id];
+                }
+            }
+        });
+
+        // Forçar exibição de campos escondidos (Outros/Manual)
+        checkOther(document.getElementById('tecPerfil'), 'tecPerfilOutro');
+        checkOther(document.getElementById('clubeMomento'), 'clubeMomentoOutro');
+        togglePersRes(document.getElementById('sisPers'));
+        
+        updatePreview();
+    }
+
+    function resetCareer() {
+        if(confirm("Deseja realmente apagar todos os dados e começar do zero?")) {
+            localStorage.removeItem('eliteSave_v2');
+            document.getElementById('setupForm').reset();
+            
+            // Esconder campos especiais
+            document.getElementById('tecPerfilOutro').style.display = 'none';
+            document.getElementById('clubeMomentoOutro').style.display = 'none';
+            document.getElementById('sisResContainer').style.display = 'none';
+            
+            updatePreview();
+            alert("Carreira resetada!");
+            goToStep(0);
+        }
+    }
+
+    // === FUNÇÕES ORIGINAIS ===
+
+    function toggleTheme() { document.body.classList.toggle('light-mode'); }
+    function checkOther(select, inputId) { document.getElementById(inputId).style.display = select.value === 'outros' ? 'block' : 'none'; }
+    function togglePersRes(select) { document.getElementById('sisResContainer').style.display = select.value === 'Manual' ? 'block' : 'none'; }
+
+    function goToStep(n) {
+        steps[currentStep].classList.remove('active');
+        dots[currentStep].classList.remove('active');
+        currentStep = n;
+        steps[currentStep].classList.add('active');
+        dots[currentStep].classList.add('active');
+        document.getElementById('prevBtn').style.visibility = currentStep === 0 ? 'hidden' : 'visible';
+        document.getElementById('nextBtn').style.display = currentStep === steps.length - 1 ? 'none' : 'flex';
+        window.scrollTo({top: 0, behavior: 'smooth'});
+    }
+
+    function changeStep(n) {
+        if (n === 1 && currentStep < steps.length - 1) goToStep(currentStep + 1);
+        else if (n === -1 && currentStep > 0) goToStep(currentStep - 1);
+    }
+
+    function updatePreview() {
+        const v = (id) => document.getElementById(id).value || "...";
+        const s = (id, alt) => document.getElementById(id).value === 'outros' ? v(alt) : v(id);
+
+        document.getElementById('preTec').innerText = `${v('tecNome')} [${s('tecPerfil', 'tecPerfilOutro')}]`;
+        document.getElementById('preHist').innerText = v('tecHist');
+        document.getElementById('preClube').innerText = `${v('clubeNome')} (${s('clubeMomento', 'clubeMomentoOutro')})`;
+        document.getElementById('preEle').innerText = v('clubeEle');
+        document.getElementById('preComp').innerText = v('clubeComp');
+        document.getElementById('preSis').innerText = `${v('sisDif')} | ${v('sisNarr')}`;
+        
+        let extras = [];
+        if(v('optContrato') !== "...") extras.push("Contrato: "+v('optContrato'));
+        if(v('optFin') !== "...") extras.push("Grana: "+v('optFin'));
+        document.getElementById('preOpt').innerText = extras.length > 0 ? extras.join(" | ") : "...";
+
+        const isSave = document.getElementById('saveActive').checked;
+        if(isSave) {
+            document.getElementById('preSave').innerHTML = `<span style="color:var(--success)">ATIVO:</span> ${v('atTemp')}\nRes: ${v('atResultados')}`;
+        } else {
+            document.getElementById('preSave').innerText = "Nova Carreira";
+        }
+    }
+
+    document.getElementById('btnGenerate').addEventListener('click', function() {
+        const v = (id) => document.getElementById(id).value || "Não informado";
+        const s = (id, alt) => document.getElementById(id).value === 'outros' ? v(alt) : v(id);
+        const isSave = document.getElementById('saveActive').checked;
+
+        const rawPrompt = `🎮 PROMPT — CARREIRA IMERSIVA - ELITE (v1.0)
 
 Você será um Simulador Narrativo de Modo Carreira para FIFA / EA FC / PES / Etc.
 Seu papel é criar uma experiência realista, dinâmica e contínua, reagindo às decisões e resultados do técnico como se o clube estivesse inserido em um universo vivo do futebol, com diretoria, torcida, imprensa e elenco reagindo de forma coerente.
 Antes de iniciar a carreira, você deve coletar informações para montar corretamente o contexto da simulação.
 
 [CONFIGURAÇÃO DA CARREIRA]
-(Tudo aqui deve ser preenchido pelo usuário. Se todas as seções estiverem em branco, não iniciar.)
 
 [Técnico]
 Nome: ${v('tecNome')}
@@ -239,26 +411,22 @@ História prévia: ${v('tecHist')}
 - Novato → baixa reputação, pouca paciência da diretoria/torcida.
 - Jovem promissor → expectativa de evolução, margem de erro média.
 - Experiente → respeito inicial, cobrança intensa.
-- Outro → livre preenchimento.
 
 [Clube]
 Nome: ${v('clubeNome')}
 Momento atual: ${s('clubeMomento', 'clubeMomentoOutro')}
 Elenco: ${v('clubeEle')}
-Resumo do momento: ${v('clubeRes')}
 📌 Explicação de Impacto:
 - Crise → paciência maior, cobrança menor.
 - Reconstrução → expectativa de médio prazo.
 - Briga por títulos → cobrança máxima.
 - Instabilidade política → risco de crises inesperadas.
-- Outro → livre preenchimento.
 
 [Competições da temporada]
 Lista: ${v('clubeComp')}
 📌 Explicação de Impacto:
 - Continental → pressão máxima.
 - Nacional → cobrança moderada.
-- Outros → relevância menor.
 
 [Personagens-chave]
 Escolha: ${v('sisPers')}
@@ -274,33 +442,21 @@ Escolha: ${v('sisDif')}
 📌 Explicação: Controla a velocidade das crises e ultimatos.
 
 [Configs avançadas — opcional]
-Contrato do técnico: ${v('cfgContrato')}
-Clima inicial do elenco: ${v('cliEle')}
-Expectativas da torcida: ${v('cfgExpTor')}
+Contrato do técnico: ${v('optContrato')}
+Clima inicial do elenco: ${v('optClimaEle')}
 
 [Extras opcionais]
-Jogadores-chave: ${v('clubeEle')}
-Situação financeira inicial: ${v('cfgFin')}
-Relação inicial com a diretoria: ${v('cliDir')}
-Relacionamento com a torcida: ${v('cfgRelTor')}
-Histórico do clube: ${v('cfgHistClube')}
-Rivalidades: ${v('cfgRivais')}
+Situação financeira inicial: ${v('optFin')}
+Relacionamento com a torcida: ${v('optTorcida')}
+Histórico do clube: ${v('optHistClube')}
+Rivalidades: ${v('optRivais')}
 
 [Atualização de carreira — opcional]
-(Preencha apenas se a carreira já estiver em andamento)
-Temporada: ${v('atTemp')}
-Resultados até agora: ${v('atRes')}
-Decisões importantes já tomadas: ${v('atDec')}
+${isSave ? `Temporada: ${v('atTemp')}
+Resultados até agora: ${v('atResultados')}
+Crises/Promessas: ${v('atCrises')}
+Climas Atuais: Diretoria(${v('cliDir')}), Torcida(${v('cliTor')})` : "Nova Carreira Selecionada."}
 
-[Climas iniciais — opcionais]
-Diretoria: ${v('cliDir')}
-Torcida organizada: ${v('cliTor')}
-Imprensa: ${v('cliImp')}
-Elenco: ${v('cliEle')}
-
-⚠️ Regra: A simulação só não deve iniciar se TODAS as configurações estiverem em branco. 
-Se houver pelo menos uma seção preenchida (Configuração da Carreira ou Atualização de Carreira), 
-salvar na memória e iniciar após confirmação.
 ---
 
 [INSTRUÇÕES DA SIMULAÇÃO]
@@ -318,8 +474,8 @@ Após confirmar:
 ---
 
 🟡 Clima do Clube  
-Simular continuamente: Diretoria, Torcida, Torcida organizada, Imprensa e Elenco.  
-Estados possíveis: **Empolgado • Confiante • Neutro • Desconfiado • Pressionado • Hostil/Crise**.  
+Simular continuamente: Diretoria, Torcida, Torcida organizada, Imprensa, Elenco.
+Estados possíveis: Empolgado • Confiante • Neutro • Desconfiado • Pressionado • Hostil/Crise.  
 
 ---
 
@@ -340,8 +496,7 @@ Introduzir organicamente: tensão salarial, insatisfação, pressão política o
 ---
 
 🔴 Consequências  
-O ambiente evolui continuamente.  
-Se hostil → gera ultimatos e demissão.  
+O ambiente evolui continuamente. Se hostil → gera ultimatos e demissão.  
 ⚠️ Não evitar consequências reais para preservar a narrativa.  
 
 ---
@@ -364,30 +519,25 @@ Se hostil → gera ultimatos e demissão.
 ---
 
 📰 Diretriz de Repercussão  
-Sempre gerar:  
-- Manchetes da imprensa  
-- Comentários de jornalistas/ex-jogadores  
-- Reações da torcida nas redes  
-- Bastidores do elenco/diretoria  
+Sempre gerar: Manchetes da imprensa, Comentários de jornalistas/ex-jogadores, Reações da torcida nas redes, Bastidores do elenco/diretoria.
 
-Tudo pronto? Salve na MEMÓRIA.  
-⚠️ A partir deste ponto, todas as informações devem ser lembradas e usadas para manter a continuidade da carreira.`;
+Tudo pronto? Salve na MEMÓRIA e aguarde minha confirmação.`;
 
-        const fp = document.getElementById('finalPrompt');
-        fp.value = finalContent;
+        document.getElementById('finalPrompt').value = rawPrompt;
         document.getElementById('outputContainer').style.display = 'block';
-        document.getElementById('btnCopy').style.display = 'block';
-        autoExpand(fp);
-        window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+        window.scrollTo({top: document.body.scrollHeight, behavior: 'smooth'});
     });
 
-        document.getElementById('btnCopy').addEventListener('click', () => {
-        const fp = document.getElementById('finalPrompt');
-        fp.select();
+    document.getElementById('btnCopy').addEventListener('click', function() {
+        const text = document.getElementById('finalPrompt');
+        text.select();
         document.execCommand('copy');
-        alert('Prompt ELITE v1.0 Copiado! Agora, envie o texto copiado para a sua IA (ChatGPT, Gemini, Claude) para iniciar a sua carreira.');
+        this.innerText = "✅ COPIADO COM SUCESSO!";
+        setTimeout(() => this.innerText = "📋 COPIAR TUDO", 3000);
     });
+
+    // Iniciar carregando os dados
+    window.onload = loadData;
 </script>
 </body>
 </html>
-
